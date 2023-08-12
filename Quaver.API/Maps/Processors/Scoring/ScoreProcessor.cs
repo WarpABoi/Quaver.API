@@ -34,6 +34,12 @@ namespace Quaver.API.Maps.Processors.Scoring
         public int Score { get; set; }
 
         /// <summary>
+        ///     The total score the user has, but counted backwards.
+        ///     Best judgement doesnt decrease score, worst judgement decreases score most.
+        /// </summary>
+        public int InverseScore { get; set; }
+        
+        /// <summary>
         ///     The accuracy the user has.
         /// </summary>
         public float Accuracy { get; set; }

@@ -36,6 +36,11 @@ namespace Quaver.API.Maps.Processors.Scoring
         ///     See: ScoreProcessorKeys.CalculateSummedScore();
         /// </summary>
         private int SummedScore { get; }
+        
+        /// <summary>
+        ///     The max score you can achieve in the song at the current point in time.
+        /// </summary>
+        private int SummedScoreNow { get; set; }
 
         /// <summary>
         ///     Counts consecutive hits for the score multiplier
@@ -68,6 +73,11 @@ namespace Quaver.API.Maps.Processors.Scoring
         ///     Total actual score. (Regular Score is ScoreCount / SummedScore)
         /// </summary>
         private int ScoreCount { get; set; }
+        
+        /// <summary>
+        ///    Total inverse score.
+        /// </summary>
+        private int InverseScoreCount { get; set; }
 
         /// <inheritdoc />
         /// <summary>
@@ -283,6 +293,13 @@ namespace Quaver.API.Maps.Processors.Scoring
             // Update total score.
             const float standardizedMaxScore = 1000000;
             Score = (int)(standardizedMaxScore * ((double)ScoreCount / SummedScore));
+
+            // Update inverse score count.
+            SummedScoreNow +=
+            JudgementScoreWeighting[Judgement.Marv] + MultiplierCountToIncreaseIndex *
+                (int)Math.Floor((float)Math.Min(TotalJudgementCount, MaxMultiplierCount) / MultiplierCountToIncreaseIndex);
+                InverseScoreCount = SummedScore - (SummedScoreNow - ScoreCount);
+            InverseScore = (int)(standardizedMaxScore * ((double)InverseScoreCount / SummedScore));
 #endregion
 
 #region HEALTH_CALCULATION
