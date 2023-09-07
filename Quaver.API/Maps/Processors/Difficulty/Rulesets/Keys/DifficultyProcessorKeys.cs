@@ -566,6 +566,28 @@ namespace Quaver.API.Maps.Processors.Difficulty.Rulesets.Keys
 
             if (!bins.Any(strain => strain > 0)) return 0;
 
+
+            // macro diff
+
+            Func<float, float, float, float, float, float> lerp = (x1, x2, y1, y2, a) => (a - x1) / (x2 - x1) * (y2 - y1) + y1;
+            Func<float, float, float> acc = (p, m) => 
+            {
+                var ac = m < p ? lerp(p - 30, p, 100, 98, m) : lerp(p, p + 8, 98, 86, m);
+                return MathF.Max(0, MathF.Min(100, ac));
+            };
+            Func<float, float[], float> tAcc = (p, map) => map.Select((m, i) => acc(p, m)).Sum() / map.Length;
+
+            var epsilon = 0.0001f;
+            var map = bins.ToArray();
+            var diff = map.Sum() / map.Length;
+            var ta = tAcc(diff, map);
+            while (MathF.Abs(98-ta) > epsilon)
+            {
+                diff *= MathF.Pow(98 / ta, 9);
+                ta = tAcc(diff, map);
+            }
+            return diff;
+
             /*
              * Having a section where notes are relatively easy, compared to the hardest sections of the map, drops the rating way more than it should.
              *
