@@ -144,15 +144,10 @@ namespace Quaver.API.Maps.Processors.Difficulty.Rulesets.Keys
             var rate = ModHelper.GetRateFromMods(mods);
 
             // Compute for overall difficulty
-            switch (Map.Mode)
-            {
-                case GameMode.Keys4:
-                    OverallDifficulty = ComputeForOverallDifficulty(rate);
-                    break;
-                case GameMode.Keys7:
-                    OverallDifficulty = (ComputeForOverallDifficulty(rate, Hand.Left) + ComputeForOverallDifficulty(rate, Hand.Right) ) / 2;
-                    break;
-            }
+            if ((int)Map.Mode % 2 == 0)
+                OverallDifficulty = ComputeForOverallDifficulty(rate);
+            else
+                OverallDifficulty = (ComputeForOverallDifficulty(rate, Hand.Left) + ComputeForOverallDifficulty(rate, Hand.Right)) / 2;
         }
 
         /// <summary>
@@ -193,20 +188,18 @@ namespace Quaver.API.Maps.Processors.Difficulty.Rulesets.Keys
                 var curStrainData = new StrainSolverData(curHitOb, rate);
 
                 // Assign Finger and Hand States
-                switch (Map.Mode)
+                if ((int)Map.Mode % 2 == 0)
                 {
-                    case GameMode.Keys4:
-                        curHitOb.FingerState = LaneToFinger4K[Map.HitObjects[i].Lane];
-                        curStrainData.Hand = LaneToHand4K[Map.HitObjects[i].Lane];
-                        break;
-                    case GameMode.Keys7:
-                        curHitOb.FingerState = LaneToFinger7K[Map.HitObjects[i].Lane];
-                        curStrainData.Hand = LaneToHand7K[Map.HitObjects[i].Lane] == Hand.Ambiguous
-                            ? assumeHand
-                            : LaneToHand7K[Map.HitObjects[i].Lane];
-                        break;
+                    curHitOb.FingerState = LaneHandFingers.LaneToFingerState(Map.Mode, Map.HitObjects[i].Lane);
+                    curStrainData.Hand = LaneHandFingers.LaneToHand(Map.Mode, Map.HitObjects[i].Lane);
                 }
-
+                else
+                {
+                    curHitOb.FingerState = LaneHandFingers.LaneToFingerState(Map.Mode, Map.HitObjects[i].Lane);
+                    curStrainData.Hand = LaneHandFingers.LaneToHand(Map.Mode, Map.HitObjects[i].Lane) == Hand.Ambiguous
+                        ? assumeHand
+                        : LaneHandFingers.LaneToHand(Map.Mode, Map.HitObjects[i].Lane);
+                }
                 // Add Strain Solver Data to list
                 StrainSolverData.Add(curStrainData);
             }

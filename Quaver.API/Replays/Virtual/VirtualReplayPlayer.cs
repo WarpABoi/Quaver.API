@@ -99,35 +99,10 @@ namespace Quaver.API.Replays.Virtual
             map.HitObjects.ForEach(x => ActiveHitObjects.Add(x));
 
             // Add virtual key bindings based on the game mode of the replay.
-            switch (Map.Mode)
-            {
-                case GameMode.Keys4:
-                    InputKeyStore = new List<VirtualReplayKeyBinding>()
-                    {
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K1),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K2),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K3),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K4),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K5),
-                    };
-                    break;
-                case GameMode.Keys7:
-                    InputKeyStore = new List<VirtualReplayKeyBinding>()
-                    {
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K1),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K2),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K3),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K4),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K5),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K6),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K7),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K8),
-                        new VirtualReplayKeyBinding(ReplayKeyPressState.K9),
-                    };
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            var virtReplayKeys = new List<VirtualReplayKeyBinding>();
+            for (var i = 0; i < (int)map.Mode; i++)
+                virtReplayKeys.Add(new VirtualReplayKeyBinding((ReplayKeyPressState)(1 << i)));
+                InputKeyStore = virtReplayKeys;
         }
 
         /// <summary>

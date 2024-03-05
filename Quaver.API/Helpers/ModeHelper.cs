@@ -21,19 +21,7 @@ namespace Quaver.API.Helpers
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static string ToShortHand(GameMode mode, bool hasScratch = false)
         {
-            switch (mode)
-            {
-                case GameMode.Keys4:
-                    if (hasScratch)
-                        return "4K+1";
-                    return "4K";
-                case GameMode.Keys7:
-                    if (hasScratch)
-                        return "7K+1";
-                    return "7K";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-            }
+            return $"{(int)mode}K" + (hasScratch ? "+1" : "");
         }
 
         /// <summary>
@@ -44,15 +32,7 @@ namespace Quaver.API.Helpers
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public static string ToLongHand(GameMode mode)
         {
-            switch (mode)
-            {
-                case GameMode.Keys4:
-                    return "4 Keys";
-                case GameMode.Keys7:
-                    return "7 Keys";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-            }
+            return $"{(int)mode} Keys";
         }
     }
 }

@@ -293,7 +293,7 @@ namespace Quaver.API.Maps.Parsers
                                 case "CircleSize":
                                     KeyCount = int.Parse(value, CultureInfo.InvariantCulture);
 
-                                    if (KeyCount != 4 && KeyCount != 7 && KeyCount != 5 && KeyCount != 8)
+                                    if (KeyCount > GameModeConsts.MaxKeys || KeyCount < 1)
                                         IsValid = false;
                                     break;
                                 case "OverallDifficulty":
@@ -480,22 +480,7 @@ namespace Quaver.API.Maps.Parsers
             };
 
             // Get the correct game mode based on the amount of keys the map has.
-            switch (KeyCount)
-            {
-                case 4:
-                    qua.Mode = GameMode.Keys4;
-                    break;
-                case 7:
-                    qua.Mode = GameMode.Keys7;
-                    break;
-                case 8:
-                    qua.Mode = GameMode.Keys7;
-                    qua.HasScratchKey = true;
-                    break;
-                default:
-                    qua.Mode = (GameMode)(-1);
-                    break;
-            }
+            qua.Mode = (GameMode)KeyCount;
 
             foreach (var path in CustomAudioSamples)
             {

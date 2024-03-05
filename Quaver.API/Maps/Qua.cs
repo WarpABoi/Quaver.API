@@ -353,7 +353,7 @@ namespace Quaver.API.Maps
             // the bookmarks in the file.
             if (Bookmarks.Count == 0)
                 Bookmarks = null;
-            
+
             var serializer = new Serializer();
             var stringWriter = new StringWriter {NewLine = "\r\n"};
             serializer.Serialize(stringWriter, this);
@@ -505,19 +505,7 @@ namespace Quaver.API.Maps
         /// <returns></returns>
         public int GetKeyCount(bool includeScratch = true)
         {
-            int count;
-
-            switch (Mode)
-            {
-                case GameMode.Keys4:
-                    count = 4;
-                    break;
-                case GameMode.Keys7:
-                    count = 7;
-                    break;
-                default:
-                    throw new InvalidEnumArgumentException();
-            }
+            var count = (int)Mode;
 
             if (HasScratchKey && includeScratch)
                 count++;
@@ -633,15 +621,7 @@ namespace Quaver.API.Maps
                 qua.ApplyMods(mods);
             }
 
-            switch (Mode)
-            {
-                case GameMode.Keys4:
                     return new DifficultyProcessorKeys(qua, new StrainConstantsKeys(), mods);
-                case GameMode.Keys7:
-                    return new DifficultyProcessorKeys(qua, new StrainConstantsKeys(), mods);
-                default:
-                    throw new InvalidEnumArgumentException();
-            }
         }
 
         /// <summary>
@@ -952,7 +932,7 @@ namespace Quaver.API.Maps
         public void MirrorHitObjects()
         {
             var keyCount = GetKeyCount();
-            
+
             for (var i = 0; i < HitObjects.Count; i++)
             {
                 var temp = HitObjects[i];
