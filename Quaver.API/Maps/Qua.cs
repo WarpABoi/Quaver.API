@@ -510,27 +510,7 @@ namespace Quaver.API.Maps
         ///    This translates mode to key count.
         /// </summary>
         /// <returns></returns>
-        public int GetKeyCount(bool includeScratch = true)
-        {
-            int count;
-
-            switch (Mode)
-            {
-                case GameMode.Keys4:
-                    count = 4;
-                    break;
-                case GameMode.Keys7:
-                    count = 7;
-                    break;
-                default:
-                    throw new InvalidEnumArgumentException();
-            }
-
-            if (HasScratchKey && includeScratch)
-                count++;
-
-            return count;
-        }
+        public int GetKeyCount(bool includeScratch = true) => ModeHelper.ToKeyCount(Mode, HasScratchKey && includeScratch);
 
         /// <summary>
         ///     Finds the most common BPM in a Qua object.
@@ -651,15 +631,10 @@ namespace Quaver.API.Maps
                 qua.ApplyMods(mods);
             }
 
-            switch (Mode)
-            {
-                case GameMode.Keys4:
-                    return new DifficultyProcessorKeys(qua, new StrainConstantsKeys(), mods);
-                case GameMode.Keys7:
-                    return new DifficultyProcessorKeys(qua, new StrainConstantsKeys(), mods);
-                default:
-                    throw new InvalidEnumArgumentException();
-            }
+            if (ModeHelper.IsKeyMode(qua.Mode))
+                return new DifficultyProcessorKeys(qua, new StrainConstantsKeys(), mods);
+            else
+                throw new InvalidEnumArgumentException();
         }
 
         /// <summary>

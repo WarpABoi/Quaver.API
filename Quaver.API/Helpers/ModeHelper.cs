@@ -19,22 +19,21 @@ namespace Quaver.API.Helpers
         /// <param name="hasScratch"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static string ToShortHand(GameMode mode, bool hasScratch = false)
+        public static string ToShortHand(GameMode mode, bool hasScratch = false) => mode switch
         {
-            switch (mode)
-            {
-                case GameMode.Keys4:
-                    if (hasScratch)
-                        return "4K+1";
-                    return "4K";
-                case GameMode.Keys7:
-                    if (hasScratch)
-                        return "7K+1";
-                    return "7K";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-            }
-        }
+            GameMode.Keys4 => "4K",
+            GameMode.Keys7 => "7K",
+
+            GameMode.Keys1 => "1K",
+            GameMode.Keys2 => "2K",
+            GameMode.Keys3 => "3K",
+            GameMode.Keys5 => "5K",
+            GameMode.Keys6 => "6K",
+            GameMode.Keys8 => "8K",
+            GameMode.Keys9 => "9K",
+            GameMode.Keys10 => "10K",
+            _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+        } + (hasScratch ? "+1" : "");
 
         /// <summary>
         ///     Converts the game mode into the long hand version
@@ -42,17 +41,68 @@ namespace Quaver.API.Helpers
         /// <param name="mode"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public static string ToLongHand(GameMode mode)
+        public static string ToLongHand(GameMode mode) => mode switch
         {
-            switch (mode)
-            {
-                case GameMode.Keys4:
-                    return "4 Keys";
-                case GameMode.Keys7:
-                    return "7 Keys";
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
-            }
-        }
+            GameMode.Keys4 => "4 Keys",
+            GameMode.Keys7 => "7 Keys",
+
+            GameMode.Keys1 => "1 Key",
+            GameMode.Keys2 => "2 Keys",
+            GameMode.Keys3 => "3 Keys",
+            GameMode.Keys5 => "5 Keys",
+            GameMode.Keys6 => "6 Keys",
+            GameMode.Keys8 => "8 Keys",
+            GameMode.Keys9 => "9 Keys",
+            GameMode.Keys10 => "10 Keys",
+            _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+        };
+
+        public static int ToKeyCount(GameMode mode, bool hasScratch = false) => mode switch
+        {
+            GameMode.Keys4 => 4,
+            GameMode.Keys7 => 7,
+
+            GameMode.Keys1 => 1,
+            GameMode.Keys2 => 2,
+            GameMode.Keys3 => 3,
+            GameMode.Keys5 => 5,
+            GameMode.Keys6 => 6,
+            GameMode.Keys8 => 8,
+            GameMode.Keys9 => 9,
+            GameMode.Keys10 => 10,
+            _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
+        } + (hasScratch ? 1 : 0);
+
+        public static GameMode FromKeyCount(int keyCount) => keyCount switch
+        {
+            4 => GameMode.Keys4,
+            7 => GameMode.Keys7,
+
+            1 => GameMode.Keys1,
+            2 => GameMode.Keys2,
+            3 => GameMode.Keys3,
+            5 => GameMode.Keys5,
+            6 => GameMode.Keys6,
+            8 => GameMode.Keys8,
+            9 => GameMode.Keys9,
+            10 => GameMode.Keys10,
+            _ => throw new ArgumentOutOfRangeException(nameof(keyCount), keyCount, null)
+        };
+
+        public static bool IsKeyMode(GameMode mode) => mode switch
+        {
+            GameMode.Keys4 => true,
+            GameMode.Keys7 => true,
+
+            GameMode.Keys1 => true,
+            GameMode.Keys2 => true,
+            GameMode.Keys3 => true,
+            GameMode.Keys5 => true,
+            GameMode.Keys6 => true,
+            GameMode.Keys8 => true,
+            GameMode.Keys9 => true,
+            GameMode.Keys10 => true,
+            _ => false
+        };
     }
 }

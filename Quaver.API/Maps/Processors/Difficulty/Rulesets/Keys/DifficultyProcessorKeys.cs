@@ -46,52 +46,72 @@ namespace Quaver.API.Maps.Processors.Difficulty.Rulesets.Keys
         /// <summary>
         ///     Assumes that the assigned hand will be the one to press that key
         /// </summary>
-        private Dictionary<int, Hand> LaneToHand4K { get; set; } = new Dictionary<int, Hand>()
+        private static Hand LaneToHand(int lane, int keyCount)
         {
-            {1, Hand.Left},
-            {2, Hand.Left},
-            {3, Hand.Right},
-            {4, Hand.Right}
-        };
+            if (lane < 1 || lane > keyCount)
+                throw new ArgumentOutOfRangeException(nameof(lane), "Lane must be between 1 and keyCount");
 
-        /// <summary>
-        ///     Assumes that the assigned hand will be the one to press that key
-        /// </summary>
-        private Dictionary<int, Hand> LaneToHand7K { get; set; } = new Dictionary<int, Hand>()
-        {
-            {1, Hand.Left},
-            {2, Hand.Left},
-            {3, Hand.Left},
-            {4, Hand.Ambiguous},
-            {5, Hand.Right},
-            {6, Hand.Right},
-            {7, Hand.Right}
-        };
+            var half = keyCount / 2;
 
-        /// <summary>
-        ///     Assumes that the assigned finger will be the one to press that key.
-        /// </summary>
-        private Dictionary<int, FingerState> LaneToFinger4K { get; set; } = new Dictionary<int, FingerState>()
-        {
-            {1, FingerState.Middle},
-            {2, FingerState.Index},
-            {3, FingerState.Index},
-            {4, FingerState.Middle}
-        };
+            if (keyCount % 2 == 0)
+            {
+                if (lane <= half)
+                    return Hand.Left;
+                else
+                    return Hand.Right;
+            }
+            else
+            {
+                if (lane <= half)
+                    return Hand.Left;
+
+                if (lane == half + 1)
+                    return Hand.Ambiguous;
+                else
+                    return Hand.Right;
+            }
+        }
 
         /// <summary>
         ///     Assumes that the assigned finger will be the one to press that key.
         /// </summary>
-        private Dictionary<int, FingerState> LaneToFinger7K { get; set; } = new Dictionary<int, FingerState>()
+        private static FingerState LaneToFinger(int lane, int keyCount)
         {
-            {1, FingerState.Ring},
-            {2, FingerState.Middle},
-            {3, FingerState.Index},
-            {4, FingerState.Thumb},
-            {5, FingerState.Index},
-            {6, FingerState.Middle},
-            {7, FingerState.Ring}
-        };
+            if (lane < 1 || lane > keyCount)
+                throw new ArgumentOutOfRangeException(nameof(lane), "Lane must be between 1 and keyCount");
+
+            var half = keyCount / 2;
+
+            if (keyCount <= 9)
+            {
+                // even key count
+                if (keyCount % 2 == 0)
+                {
+                    if (lane <= half)
+                        return (FingerState)(1 << (half - lane));
+                    else
+                        return (FingerState)(1 << (lane - (half + 1)));
+                }
+
+                // odd key count
+                if (lane <= half)
+                    return (FingerState)(1 << (half - lane));
+                if (lane == half + 1)
+                    return FingerState.Thumb;
+                return (FingerState)(1 << (lane - (half + 2)));
+            }
+
+            if (keyCount == 10)
+            {
+                if (lane <= half - 1)
+                    return (FingerState)(1 << (half - 1 - lane));
+                if (lane == half || lane == half + 1)
+                    return FingerState.Thumb;
+                return (FingerState)(1 << (lane - (half + 2)));
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(keyCount), "Key count must be between 1 and 10");
+        }
 
         /// <summary>
         ///     Value of confidence that there's vibro manipulation in the calculated map.
@@ -144,15 +164,10 @@ namespace Quaver.API.Maps.Processors.Difficulty.Rulesets.Keys
             var rate = ModHelper.GetRateFromMods(mods);
 
             // Compute for overall difficulty
-            switch (Map.Mode)
-            {
-                case GameMode.Keys4:
-                    OverallDifficulty = ComputeForOverallDifficulty(rate);
-                    break;
-                case GameMode.Keys7:
-                    OverallDifficulty = (ComputeForOverallDifficulty(rate, Hand.Left) + ComputeForOverallDifficulty(rate, Hand.Right) ) / 2;
-                    break;
-            }
+            if (ModeHelper.ToKeyCount(Map.Mode) % 2 == 0)
+                OverallDifficulty = ComputeForOverallDifficulty(rate);
+            else
+                OverallDifficulty = (ComputeForOverallDifficulty(rate, Hand.Left) + ComputeForOverallDifficulty(rate, Hand.Right)) / 2;
         }
 
         /// <summary>
@@ -193,19 +208,12 @@ namespace Quaver.API.Maps.Processors.Difficulty.Rulesets.Keys
                 var curStrainData = new StrainSolverData(curHitOb, rate);
 
                 // Assign Finger and Hand States
-                switch (Map.Mode)
-                {
-                    case GameMode.Keys4:
-                        curHitOb.FingerState = LaneToFinger4K[Map.HitObjects[i].Lane];
-                        curStrainData.Hand = LaneToHand4K[Map.HitObjects[i].Lane];
-                        break;
-                    case GameMode.Keys7:
-                        curHitOb.FingerState = LaneToFinger7K[Map.HitObjects[i].Lane];
-                        curStrainData.Hand = LaneToHand7K[Map.HitObjects[i].Lane] == Hand.Ambiguous
-                            ? assumeHand
-                            : LaneToHand7K[Map.HitObjects[i].Lane];
-                        break;
-                }
+                var keyCount = ModeHelper.ToKeyCount(Map.Mode);
+
+                curHitOb.FingerState = LaneToFinger(Map.HitObjects[i].Lane, keyCount);
+
+                var hand = LaneToHand(Map.HitObjects[i].Lane, keyCount);
+                curStrainData.Hand = hand == Hand.Ambiguous ? assumeHand : hand;
 
                 // Add Strain Solver Data to list
                 StrainSolverData.Add(curStrainData);

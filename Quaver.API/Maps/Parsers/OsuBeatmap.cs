@@ -293,7 +293,7 @@ namespace Quaver.API.Maps.Parsers
                                 case "CircleSize":
                                     KeyCount = int.Parse(value, CultureInfo.InvariantCulture);
 
-                                    if (KeyCount != 4 && KeyCount != 7 && KeyCount != 5 && KeyCount != 8)
+                                    if (KeyCount < 1 || KeyCount > 10) // 10kTodo: const max key count
                                         IsValid = false;
                                     break;
                                 case "OverallDifficulty":
@@ -463,7 +463,7 @@ namespace Quaver.API.Maps.Parsers
         public Qua ToQua(bool checkValidity = true)
         {
             // Init Qua with general information
-            var qua = new Qua()
+            var qua = new Qua
             {
                 AudioFile = AudioFilename,
                 SongPreviewTime = PreviewTime,
@@ -476,26 +476,9 @@ namespace Quaver.API.Maps.Parsers
                 Tags = Tags,
                 Creator = Creator,
                 DifficultyName = Version,
-                Description = $"This is a Quaver converted version of {Creator}'s map."
+                Description = $"This is a Quaver converted version of {Creator}'s map.",
+                Mode = ModeHelper.FromKeyCount(KeyCount)
             };
-
-            // Get the correct game mode based on the amount of keys the map has.
-            switch (KeyCount)
-            {
-                case 4:
-                    qua.Mode = GameMode.Keys4;
-                    break;
-                case 7:
-                    qua.Mode = GameMode.Keys7;
-                    break;
-                case 8:
-                    qua.Mode = GameMode.Keys7;
-                    qua.HasScratchKey = true;
-                    break;
-                default:
-                    qua.Mode = (GameMode)(-1);
-                    break;
-            }
 
             foreach (var path in CustomAudioSamples)
             {
