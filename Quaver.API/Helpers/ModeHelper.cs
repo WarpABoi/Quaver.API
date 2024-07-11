@@ -12,6 +12,8 @@ namespace Quaver.API.Helpers
 {
     public static class ModeHelper
     {
+        public static int MaxKeyCount => Enum.GetValues(typeof(GameMode)).Length;
+
         /// <summary>
         ///     Converts game mode to short hand version.
         /// </summary>

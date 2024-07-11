@@ -293,7 +293,7 @@ namespace Quaver.API.Maps.Parsers
                                 case "CircleSize":
                                     KeyCount = int.Parse(value, CultureInfo.InvariantCulture);
 
-                                    if (KeyCount < 1 || KeyCount > 10) // 10kTodo: const max key count
+                                    if (KeyCount < 1 || KeyCount > ModeHelper.MaxKeyCount)
                                         IsValid = false;
                                     break;
                                 case "OverallDifficulty":
